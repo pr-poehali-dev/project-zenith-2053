@@ -1,403 +1,504 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Icon from "@/components/ui/icon";
+
+const slides = [
+  {
+    id: 1,
+    tag: "01 / Актуальность",
+    title: "Финансовая\nграмотность\nшкольников",
+    subtitle: "Исследовательский проект",
+    content: null,
+    type: "cover",
+    accent: "red",
+  },
+  {
+    id: 2,
+    tag: "01 / Актуальность",
+    title: "Зачем это важно?",
+    content: [
+      "Школьники обладают аналитическим мышлением, но знания о личных финансах часто остаются недостаточными.",
+      "Финансовая грамотность позволит применять математические навыки для принятия рациональных решений в будущем.",
+    ],
+    type: "text",
+    accent: "black",
+  },
+  {
+    id: 3,
+    tag: "02 / Цель",
+    title: "Цель проекта",
+    content: "Изучить уровень финансовой грамотности учащихся научных классов и разработать рекомендации по её развитию с использованием научного и аналитического подхода.",
+    type: "quote",
+    accent: "red",
+  },
+  {
+    id: 4,
+    tag: "03 / Задачи",
+    title: "Задачи",
+    content: [
+      "Изучить понятие финансовой грамотности и её значение",
+      "Рассмотреть основные элементы личных финансов",
+      "Проанализировать особенности преподавания в классах",
+      "Разработать сайт для школьников начальных классов",
+    ],
+    type: "list",
+    accent: "black",
+  },
+  {
+    id: 5,
+    tag: "04 / Исследование",
+    title: "Объект и предмет",
+    content: [
+      { label: "Объект", value: "Учащиеся научных классов" },
+      { label: "Предмет", value: "Уровень финансовой грамотности школьников и способы её развития" },
+    ],
+    type: "two-col",
+    accent: "black",
+  },
+  {
+    id: 6,
+    tag: "05 / Методы",
+    title: "Методы исследования",
+    content: [
+      "Анализ научной и учебной литературы",
+      "Анкетирование учащихся",
+      "Сравнительный анализ данных",
+      "Математические расчёты и моделирование",
+    ],
+    type: "list",
+    accent: "red",
+  },
+  {
+    id: 7,
+    tag: "06 / Теория",
+    title: "Что такое финансовая грамотность?",
+    content: "Совокупность знаний и навыков, позволяющих человеку эффективно управлять личными денежными средствами, планировать бюджет, оценивать финансовые риски и принимать обоснованные экономические решения.",
+    type: "quote",
+    accent: "black",
+  },
+  {
+    id: 8,
+    tag: "06 / Теория",
+    title: "Ключевые компоненты",
+    content: [
+      { icon: "Wallet", label: "Личный бюджет", desc: "Планирование доходов и расходов" },
+      { icon: "PiggyBank", label: "Сбережения", desc: "Финансовая «подушка безопасности»" },
+      { icon: "CreditCard", label: "Банковские услуги", desc: "Карты, вклады, кредиты" },
+      { icon: "TrendingUp", label: "Инвестиции", desc: "Способы увеличения капитала" },
+      { icon: "Shield", label: "Финансовая безопасность", desc: "Защита от мошенничества" },
+    ],
+    type: "cards",
+    accent: "black",
+  },
+  {
+    id: 9,
+    tag: "06 / Теория",
+    title: "Финансы в научных классах",
+    content: [
+      "Расчёт сложного процента",
+      "Анализ инфляции",
+      "Построение графиков роста капитала",
+      "Оценка рисков инвестиций",
+    ],
+    note: "Математические знания делают изучение финансов более глубоким и практическим",
+    type: "list-note",
+    accent: "red",
+  },
+  {
+    id: 10,
+    tag: "07 / Практика",
+    title: "Вопросы анкеты",
+    content: [
+      "Ведёте ли вы личный бюджет?",
+      "Знаете ли вы, что такое сложный процент?",
+      "Пользуетесь ли банковской картой?",
+      "Знаете ли вы, что такое инвестиции?",
+      "Хотели бы вы изучать финансы в школе?",
+    ],
+    type: "numbered",
+    accent: "black",
+  },
+  {
+    id: 11,
+    tag: "07 / Практика",
+    title: "Что покажет анализ?",
+    content: [
+      { label: "Знания", value: "Уровень осведомлённости о финансах" },
+      { label: "Интерес", value: "Желание изучать тему глубже" },
+      { label: "Потребность", value: "Необходимость дополнительных занятий" },
+    ],
+    type: "two-col",
+    accent: "red",
+  },
+  {
+    id: 12,
+    tag: "08 / Предложения",
+    title: "Как повысить грамотность?",
+    content: [
+      "Факультативный курс по финансовой грамотности",
+      "Практические занятия по планированию бюджета",
+      "Математические задачи на финансовую тематику",
+      "Экономические игры и конкурсы",
+      "Специалисты из банков и финансовых организаций",
+    ],
+    type: "list",
+    accent: "black",
+  },
+  {
+    id: 13,
+    tag: "09 / Вывод",
+    title: "Итог",
+    content: "Учащиеся научных классов обладают хорошей базой для освоения финансовой грамотности. Включение финансовых тем в образовательный процесс поможет школьникам научиться эффективно управлять личными финансами и принимать взвешенные решения.",
+    type: "final",
+    accent: "red",
+  },
+];
+
+type Slide = (typeof slides)[0];
+
+function SlideContent({ slide }: { slide: Slide }) {
+  const isRedBg = slide.accent === "red" && (slide.type === "cover" || slide.type === "final");
+
+  if (slide.type === "cover") {
+    return (
+      <div className="flex flex-col justify-between h-full">
+        <div className="flex-1 flex flex-col justify-center">
+          <p
+            className="text-sm uppercase tracking-widest mb-6"
+            style={{ fontFamily: "'Space Mono', monospace", color: isRedBg ? "rgba(255,255,255,0.7)" : "#dc2626" }}
+          >
+            {slide.subtitle as string}
+          </p>
+          <h1
+            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter leading-none"
+            style={{ fontFamily: "'Space Mono', monospace", color: isRedBg ? "#fff" : "#000" }}
+          >
+            {(slide.title as string).split("\n").map((line, i) => (
+              <span key={i} className={i === 1 ? (isRedBg ? "opacity-50" : "text-red-600") : ""}>
+                {line}
+                <br />
+              </span>
+            ))}
+          </h1>
+        </div>
+        <div
+          className="grid grid-cols-3 pt-6"
+          style={{ borderTop: `1px solid ${isRedBg ? "rgba(255,255,255,0.3)" : "#000"}` }}
+        >
+          {[
+            { label: "Предмет", val: "Экономика" },
+            { label: "Тип", val: "Исследование" },
+            { label: "Год", val: "2024–2025" },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className={`pr-6 ${i < 2 ? "border-r mr-6" : ""}`}
+              style={{ borderColor: isRedBg ? "rgba(255,255,255,0.3)" : "#000" }}
+            >
+              <p className="text-sm uppercase tracking-widest" style={{ color: isRedBg ? "rgba(255,255,255,0.5)" : "#737373" }}>
+                {item.label}
+              </p>
+              <p className="font-medium mt-1" style={{ color: isRedBg ? "#fff" : "#000" }}>
+                {item.val}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (slide.type === "quote") {
+    return (
+      <div className="flex flex-col justify-center h-full">
+        <p className="text-red-600 text-6xl font-bold leading-none mb-6" style={{ fontFamily: "'Space Mono', monospace" }}>
+          "
+        </p>
+        <p className="text-2xl md:text-3xl lg:text-4xl font-medium leading-snug max-w-3xl">
+          {slide.content as string}
+        </p>
+      </div>
+    );
+  }
+
+  if (slide.type === "final") {
+    return (
+      <div className="flex flex-col justify-center h-full">
+        <div className="max-w-2xl">
+          <p className="text-8xl font-bold leading-none mb-6" style={{ fontFamily: "'Space Mono', monospace", color: "rgba(255,255,255,0.3)" }}>
+            "
+          </p>
+          <p className="text-xl md:text-2xl leading-relaxed mb-12" style={{ color: "rgba(255,255,255,0.9)" }}>
+            {slide.content as string}
+          </p>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-1 bg-white" />
+            <p className="text-sm uppercase tracking-widest font-bold text-white">Спасибо за внимание</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (slide.type === "text") {
+    return (
+      <div className="flex flex-col justify-center h-full gap-8 max-w-3xl">
+        {(slide.content as string[]).map((text, i) => (
+          <p key={i} className="text-xl md:text-2xl leading-relaxed text-neutral-700 border-l-4 border-red-600 pl-6">
+            {text}
+          </p>
+        ))}
+      </div>
+    );
+  }
+
+  if (slide.type === "list" || slide.type === "numbered") {
+    const items = slide.content as string[];
+    const accentColor = slide.accent === "red" ? "#dc2626" : "#000";
+    return (
+      <div className="flex flex-col justify-center h-full">
+        <ul className="space-y-4 max-w-2xl">
+          {items.map((item, i) => (
+            <li key={i} className="flex items-start gap-5">
+              <span
+                className="text-sm font-bold pt-1 flex-shrink-0 w-8"
+                style={{ fontFamily: "'Space Mono', monospace", color: accentColor }}
+              >
+                {slide.type === "numbered" ? String(i + 1).padStart(2, "0") : "—"}
+              </span>
+              <p className="text-xl md:text-2xl leading-snug">{item}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  if (slide.type === "list-note") {
+    const items = slide.content as string[];
+    return (
+      <div className="flex flex-col justify-center h-full">
+        <ul className="space-y-4 max-w-2xl">
+          {items.map((item, i) => (
+            <li key={i} className="flex items-start gap-5">
+              <span
+                className="text-sm font-bold pt-1 flex-shrink-0 w-8 text-red-600"
+                style={{ fontFamily: "'Space Mono', monospace" }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <p className="text-xl md:text-2xl leading-snug">{item}</p>
+            </li>
+          ))}
+        </ul>
+        {"note" in slide && slide.note && (
+          <p className="mt-10 text-sm uppercase tracking-widest text-neutral-500 border-t border-neutral-300 pt-6 max-w-2xl">
+            {slide.note as string}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (slide.type === "two-col") {
+    const items = slide.content as { label: string; value: string }[];
+    const accentColor = slide.accent === "red" ? "#dc2626" : "#737373";
+    return (
+      <div className="flex flex-col justify-center h-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 max-w-3xl">
+          {items.map((item, i) => (
+            <div
+              key={i}
+              className="py-8"
+              style={{
+                paddingRight: i % 2 === 0 ? "3rem" : undefined,
+                paddingLeft: i % 2 !== 0 ? "3rem" : undefined,
+                borderRight: i % 2 === 0 ? "1px solid #000" : undefined,
+                borderTop: i >= 2 ? "1px solid #000" : undefined,
+              }}
+            >
+              <p
+                className="text-sm uppercase tracking-widest mb-3"
+                style={{ color: accentColor, fontFamily: "'Space Mono', monospace" }}
+              >
+                {item.label}
+              </p>
+              <p className="text-xl md:text-2xl font-medium leading-snug">{item.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (slide.type === "cards") {
+    const items = slide.content as { icon: string; label: string; desc: string }[];
+    return (
+      <div className="flex flex-col justify-center h-full">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {items.map((item, i) => (
+            <div
+              key={i}
+              className="border border-black p-4 hover:bg-black hover:text-white transition-colors duration-300 group cursor-default"
+            >
+              <Icon name={item.icon as "Wallet"} size={24} className="mb-3 text-red-600 group-hover:text-red-400" />
+              <p className="font-bold text-sm mb-1">{item.label}</p>
+              <p className="text-xs text-neutral-500 group-hover:text-neutral-400 leading-snug">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 export default function Index() {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [sent, setSent] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [animating, setAnimating] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSent(true);
-  };
+  const goTo = useCallback(
+    (index: number) => {
+      if (animating) return;
+      setAnimating(true);
+      setTimeout(() => {
+        setCurrent(index);
+        setAnimating(false);
+      }, 180);
+    },
+    [animating]
+  );
+
+  const next = useCallback(() => {
+    if (current < slides.length - 1) goTo(current + 1);
+  }, [current, goTo]);
+
+  const prev = useCallback(() => {
+    if (current > 0) goTo(current - 1);
+  }, [current, goTo]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") {
+        e.preventDefault();
+        next();
+      }
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        prev();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [next, prev]);
+
+  const slide = slides[current];
+  const isRedBg = slide.accent === "red" && (slide.type === "cover" || slide.type === "final");
+
+  const bgColor = isRedBg ? "#dc2626" : "#fff";
+  const fgColor = isRedBg ? "#fff" : "#000";
+  const borderColor = isRedBg ? "rgba(255,255,255,0.3)" : "#000";
 
   return (
-    <main className="min-h-screen bg-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-white border-b border-black">
-        <div className="container mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
-          <a href="/" className="text-xl font-bold tracking-tighter" style={{ fontFamily: "'Space Mono', monospace" }}>
-            GRIDFORM
-          </a>
-          <div className="flex space-x-8">
-            <a href="#work" className="text-sm uppercase tracking-widest hover:text-red-600 transition-colors">
-              Работы
-            </a>
-            <a href="#about" className="text-sm uppercase tracking-widest hover:text-red-600 transition-colors">
-              О студии
-            </a>
-            <a href="#contact" className="text-sm uppercase tracking-widest hover:text-red-600 transition-colors">
-              Контакты
-            </a>
-          </div>
-        </div>
-      </nav>
+    <div
+      className="fixed inset-0 flex flex-col transition-colors duration-500"
+      style={{ background: bgColor, color: fgColor }}
+    >
+      {/* Top bar */}
+      <div
+        className="flex justify-between items-center px-6 md:px-12 py-4 flex-shrink-0"
+        style={{ borderBottom: `1px solid ${borderColor}` }}
+      >
+        <p
+          className="text-xs uppercase tracking-widest font-bold"
+          style={{ fontFamily: "'Space Mono', monospace", color: isRedBg ? "rgba(255,255,255,0.8)" : "#dc2626" }}
+        >
+          {slide.tag}
+        </p>
+        <p
+          className="text-xs uppercase tracking-widest"
+          style={{ fontFamily: "'Space Mono', monospace", color: isRedBg ? "rgba(255,255,255,0.5)" : "#737373" }}
+        >
+          {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+        </p>
+      </div>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 md:px-8 container mx-auto">
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-12 md:col-span-7 mb-8 md:mb-0">
-            <p className="text-sm uppercase tracking-widest text-red-600 mb-4" style={{ fontFamily: "'Space Mono', monospace" }}>
-              Дизайн-студия — Москва
-            </p>
-            <h1 className="text-8xl md:text-9xl font-bold tracking-tighter leading-none mb-6" style={{ fontFamily: "'Space Mono', monospace" }}>
-              ФОРМА
-              <br />
-              <span className="text-red-600">ЕСТЬ</span>
-              <br />
-              ФУНКЦИЯ
-            </h1>
-            <p className="text-xl max-w-xl mt-8 leading-relaxed">
-              Мы создаём дизайн, который работает. Брендинг, визуальные системы и цифровой дизайн — без лишнего, только суть.
-            </p>
-            <a
-              href="#contact"
-              className="inline-block mt-10 px-8 py-4 bg-black text-white text-sm uppercase tracking-widest hover:bg-red-600 transition-colors duration-300"
+      {/* Slide content */}
+      <div
+        className="flex-1 px-6 md:px-12 py-8 overflow-hidden transition-opacity duration-200"
+        style={{ opacity: animating ? 0 : 1 }}
+      >
+        <div className="h-full flex flex-col">
+          {slide.type !== "cover" && slide.type !== "final" && (
+            <h2
+              className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-none mb-8 flex-shrink-0"
+              style={{ fontFamily: "'Space Mono', monospace" }}
             >
-              Обсудить проект
-            </a>
-          </div>
-          <div className="col-span-12 md:col-span-5 flex items-center justify-center">
-            <div className="relative w-full aspect-square bg-red-600">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="grid grid-cols-3 gap-2 w-3/4 h-3/4">
-                  {Array.from({ length: 9 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`${i % 3 === 1 || i === 4 ? "bg-white" : "bg-transparent border border-white/30"}`}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-black" />
-            </div>
-          </div>
-        </div>
-
-        {/* Stats bar */}
-        <div className="grid grid-cols-3 border-t border-black mt-20 pt-8">
-          <div className="pr-8 border-r border-black">
-            <p className="text-5xl font-bold tracking-tighter" style={{ fontFamily: "'Space Mono', monospace" }}>120+</p>
-            <p className="text-sm uppercase tracking-widest text-neutral-500 mt-2">Проектов</p>
-          </div>
-          <div className="px-8 border-r border-black">
-            <p className="text-5xl font-bold tracking-tighter" style={{ fontFamily: "'Space Mono', monospace" }}>8</p>
-            <p className="text-sm uppercase tracking-widest text-neutral-500 mt-2">Лет опыта</p>
-          </div>
-          <div className="pl-8">
-            <p className="text-5xl font-bold tracking-tighter" style={{ fontFamily: "'Space Mono', monospace" }}>40+</p>
-            <p className="text-sm uppercase tracking-widest text-neutral-500 mt-2">Клиентов</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Work Section */}
-      <section id="work" className="py-20 px-4 md:px-8 bg-black text-white">
-        <div className="container mx-auto">
-          <div className="flex justify-between items-baseline mb-12">
-            <h2 className="text-6xl font-bold tracking-tighter" style={{ fontFamily: "'Space Mono', monospace" }}>
-              РАБОТЫ
+              {slide.title}
             </h2>
-            <p className="text-neutral-400 text-sm uppercase tracking-widest">Избранное 2022–2024</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Project 1 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-square bg-white mb-4 overflow-hidden">
-                <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-100 group-hover:bg-red-600 transition-colors duration-300 p-8">
-                  <span className="text-black group-hover:text-white text-7xl font-bold transition-colors" style={{ fontFamily: "'Space Mono', monospace" }}>01</span>
-                  <div className="mt-4 w-full grid grid-cols-4 gap-1">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <div key={i} className="h-1 bg-black group-hover:bg-white/50 transition-colors" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <p className="text-red-500 text-xs uppercase tracking-widest mb-1">Брендинг</p>
-              <h3 className="text-xl font-bold mb-2">Meridian Bank</h3>
-              <p className="text-neutral-400">Полная визуальная идентичность для цифрового банка нового поколения</p>
-            </div>
-
-            {/* Project 2 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-square bg-white mb-4 overflow-hidden">
-                <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-900 group-hover:bg-red-600 transition-colors duration-300 p-8">
-                  <span className="text-white text-7xl font-bold transition-colors" style={{ fontFamily: "'Space Mono', monospace" }}>02</span>
-                  <div className="mt-4 w-12 h-12 border-2 border-white group-hover:rotate-45 transition-transform duration-500" />
-                </div>
-              </div>
-              <p className="text-red-500 text-xs uppercase tracking-widest mb-1">Визуальная система</p>
-              <h3 className="text-xl font-bold mb-2">Forma Architects</h3>
-              <p className="text-neutral-400">Модульная дизайн-система для архитектурного бюро с 30-летней историей</p>
-            </div>
-
-            {/* Project 3 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-square bg-white mb-4 overflow-hidden">
-                <div className="w-full h-full flex flex-col items-center justify-center bg-red-600 group-hover:bg-black transition-colors duration-300 p-8">
-                  <span className="text-white text-7xl font-bold transition-colors" style={{ fontFamily: "'Space Mono', monospace" }}>03</span>
-                  <div className="mt-4 flex space-x-2">
-                    <div className="w-4 h-4 bg-white" />
-                    <div className="w-4 h-4 bg-white/50" />
-                    <div className="w-4 h-4 bg-white/25" />
-                  </div>
-                </div>
-              </div>
-              <p className="text-red-500 text-xs uppercase tracking-widest mb-1">Цифровой дизайн</p>
-              <h3 className="text-xl font-bold mb-2">Strata Ventures</h3>
-              <p className="text-neutral-400">Типографическая система и UI-kit для инвестиционной платформы</p>
-            </div>
-
-            {/* Project 4 */}
-            <div className="group cursor-pointer md:col-span-2">
-              <div className="aspect-video bg-white mb-4 overflow-hidden">
-                <div className="w-full h-full flex items-center justify-between bg-neutral-800 group-hover:bg-red-600 transition-colors duration-300 px-12">
-                  <span className="text-white text-8xl font-bold" style={{ fontFamily: "'Space Mono', monospace" }}>04</span>
-                  <div className="flex flex-col space-y-3">
-                    <div className="w-32 h-1 bg-white" />
-                    <div className="w-24 h-1 bg-white/60" />
-                    <div className="w-40 h-1 bg-white/30" />
-                  </div>
-                </div>
-              </div>
-              <p className="text-red-500 text-xs uppercase tracking-widest mb-1">Брендинг + Упаковка</p>
-              <h3 className="text-xl font-bold mb-2">Klar Cosmetics</h3>
-              <p className="text-neutral-400">Разработка бренда с нуля: нейминг, логотип, упаковка, руководство по стилю</p>
-            </div>
-
-            {/* Project 5 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-square bg-white mb-4 overflow-hidden">
-                <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-200 group-hover:bg-red-600 transition-colors duration-300 p-8">
-                  <span className="text-black group-hover:text-white text-7xl font-bold transition-colors" style={{ fontFamily: "'Space Mono', monospace" }}>05</span>
-                </div>
-              </div>
-              <p className="text-red-500 text-xs uppercase tracking-widest mb-1">Типографика</p>
-              <h3 className="text-xl font-bold mb-2">Nord Magazine</h3>
-              <p className="text-neutral-400">Редизайн журнала об архитектуре и урбанистике</p>
-            </div>
+          )}
+          <div className="flex-1 overflow-auto">
+            <SlideContent slide={slide} />
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* About Section */}
-      <section id="about" className="py-20 px-4 md:px-8">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-12 gap-8">
-            <div className="col-span-12 md:col-span-5">
-              <h2 className="text-6xl font-bold tracking-tighter mb-8" style={{ fontFamily: "'Space Mono', monospace" }}>
-                О<br />СТУДИИ
-              </h2>
-              <div className="aspect-[4/5] bg-black relative mb-8 md:mb-0 overflow-hidden">
-                <div className="absolute inset-0 grid grid-cols-3 grid-rows-4 gap-px">
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <div key={i} className={`${[0, 4, 7, 11].includes(i) ? "bg-red-600" : "bg-neutral-900"}`} />
-                  ))}
-                </div>
-                <div className="absolute inset-0 flex items-end p-6">
-                  <p className="text-white text-sm uppercase tracking-widest" style={{ fontFamily: "'Space Mono', monospace" }}>
-                    С 2016 года
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-span-12 md:col-span-7 md:pt-24">
-              <p className="text-2xl font-medium mb-6 leading-relaxed">
-                Мы делаем дизайн, который не нужно объяснять.
-              </p>
-              <p className="text-lg mb-6 text-neutral-600 leading-relaxed">
-                GRIDFORM — студия, работающая на стыке типографики и стратегии. Мы убеждены: сильный визуальный язык строится на системе, а не на случайности.
-              </p>
-              <p className="mb-6 text-neutral-600 leading-relaxed">
-                С 2016 года мы работаем с компаниями, которым важно не просто «красиво», а точно и убедительно. Наши клиенты — банки, архитектурные бюро, технологические компании и издательства.
-              </p>
-
-              <div className="grid grid-cols-2 gap-8 mt-12 pt-8 border-t border-black">
-                <div>
-                  <h3 className="text-sm uppercase tracking-widest mb-4 text-red-600" style={{ fontFamily: "'Space Mono', monospace" }}>
-                    Принципы
-                  </h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-black inline-block flex-shrink-0" />
-                      Система прежде всего
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-black inline-block flex-shrink-0" />
-                      Типографика как архитектура
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-black inline-block flex-shrink-0" />
-                      Модульная сетка
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-black inline-block flex-shrink-0" />
-                      Форма следует функции
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-sm uppercase tracking-widest mb-4 text-red-600" style={{ fontFamily: "'Space Mono', monospace" }}>
-                    Услуги
-                  </h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-red-600 inline-block flex-shrink-0" />
-                      Брендинг и айдентика
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-red-600 inline-block flex-shrink-0" />
-                      Визуальные системы
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-red-600 inline-block flex-shrink-0" />
-                      Цифровой дизайн / UI
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-red-600 inline-block flex-shrink-0" />
-                      Редизайн и аудит
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Bottom nav */}
+      <div
+        className="flex justify-between items-center px-6 md:px-12 py-4 flex-shrink-0"
+        style={{ borderTop: `1px solid ${borderColor}` }}
+      >
+        {/* Progress dots */}
+        <div className="flex gap-1.5 items-center">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className="transition-all duration-300 flex-shrink-0"
+              style={{
+                width: i === current ? "20px" : "6px",
+                height: "6px",
+                background: isRedBg
+                  ? i === current ? "#fff" : "rgba(255,255,255,0.35)"
+                  : i === current ? "#000" : "#d4d4d4",
+              }}
+            />
+          ))}
         </div>
-      </section>
 
-      {/* Process Section */}
-      <section className="py-20 px-4 md:px-8 bg-black text-white">
-        <div className="container mx-auto">
-          <h2 className="text-6xl font-bold tracking-tighter mb-16" style={{ fontFamily: "'Space Mono', monospace" }}>
-            КАК МЫ<br />РАБОТАЕМ
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-0">
-            {[
-              { num: "01", title: "Анализ", desc: "Изучаем контекст, конкурентов и аудиторию. Находим точку отличия." },
-              { num: "02", title: "Стратегия", desc: "Формулируем визуальную концепцию и принципы коммуникации." },
-              { num: "03", title: "Дизайн", desc: "Создаём систему: от логотипа до руководства по стилю." },
-              { num: "04", title: "Запуск", desc: "Передаём все материалы, обучаем команду, остаёмся на связи." },
-            ].map((step, i) => (
-              <div key={i} className="border-l border-neutral-700 px-8 py-6 hover:border-red-600 transition-colors group">
-                <p className="text-red-600 text-sm font-bold mb-4" style={{ fontFamily: "'Space Mono', monospace" }}>{step.num}</p>
-                <h3 className="text-2xl font-bold mb-3 group-hover:text-red-600 transition-colors">{step.title}</h3>
-                <p className="text-neutral-400 leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
+        {/* Arrows */}
+        <div className="flex gap-2">
+          <button
+            onClick={prev}
+            disabled={current === 0}
+            className="w-10 h-10 flex items-center justify-center border transition-all duration-200 disabled:opacity-30"
+            style={{ borderColor: fgColor, color: fgColor }}
+          >
+            <Icon name="ChevronLeft" size={18} />
+          </button>
+          <button
+            onClick={next}
+            disabled={current === slides.length - 1}
+            className="w-10 h-10 flex items-center justify-center transition-all duration-200 disabled:opacity-30"
+            style={{
+              background: fgColor,
+              color: bgColor,
+            }}
+          >
+            <Icon name="ChevronRight" size={18} />
+          </button>
         </div>
-      </section>
+      </div>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 px-4 md:px-8 bg-red-600 text-white">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
-              <h2 className="text-6xl font-bold tracking-tighter mb-8" style={{ fontFamily: "'Space Mono', monospace" }}>
-                ДАВАЙТЕ<br />РАБОТАТЬ
-              </h2>
-              <p className="text-xl mb-8 leading-relaxed">
-                Есть проект? Расскажите о нём. Мы ответим в течение одного рабочего дня.
-              </p>
-              <div className="space-y-4">
-                <p className="flex items-center gap-4">
-                  <span className="w-20 text-sm uppercase tracking-widest opacity-70">Почта</span>
-                  <a href="mailto:hello@gridform.ru" className="hover:underline font-medium">
-                    hello@gridform.ru
-                  </a>
-                </p>
-                <p className="flex items-center gap-4">
-                  <span className="w-20 text-sm uppercase tracking-widest opacity-70">Телефон</span>
-                  <a href="tel:+74951234567" className="hover:underline font-medium">
-                    +7 (495) 123-45-67
-                  </a>
-                </p>
-                <p className="flex items-center gap-4">
-                  <span className="w-20 text-sm uppercase tracking-widest opacity-70">Адрес</span>
-                  <span className="font-medium">Москва, Россия</span>
-                </p>
-              </div>
-
-              <div className="mt-12 pt-8 border-t border-white/30">
-                <p className="text-sm uppercase tracking-widest opacity-70 mb-4">Соцсети</p>
-                <div className="flex space-x-6">
-                  <a href="#" className="text-sm uppercase tracking-widest hover:opacity-70 transition-opacity">Behance</a>
-                  <a href="#" className="text-sm uppercase tracking-widest hover:opacity-70 transition-opacity">Instagram</a>
-                  <a href="#" className="text-sm uppercase tracking-widest hover:opacity-70 transition-opacity">Telegram</a>
-                </div>
-              </div>
-            </div>
-            <div>
-              {sent ? (
-                <div className="h-full flex flex-col items-center justify-center text-center py-12">
-                  <p className="text-7xl font-bold mb-6" style={{ fontFamily: "'Space Mono', monospace" }}>✓</p>
-                  <p className="text-2xl font-bold mb-2">Сообщение отправлено</p>
-                  <p className="opacity-70">Мы свяжемся с вами в течение одного рабочего дня</p>
-                </div>
-              ) : (
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                  <div>
-                    <label htmlFor="name" className="block text-sm uppercase tracking-widest mb-2 opacity-70">
-                      Имя
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-transparent border-b-2 border-white py-2 px-0 focus:outline-none focus:border-black placeholder-white/50 text-white"
-                      placeholder="Ваше имя"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm uppercase tracking-widest mb-2 opacity-70">
-                      Почта
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-transparent border-b-2 border-white py-2 px-0 focus:outline-none focus:border-black placeholder-white/50 text-white"
-                      placeholder="Ваш email"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="message" className="block text-sm uppercase tracking-widest mb-2 opacity-70">
-                      Проект
-                    </label>
-                    <textarea
-                      id="message"
-                      rows={4}
-                      required
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full bg-transparent border-b-2 border-white py-2 px-0 focus:outline-none focus:border-black placeholder-white/50 text-white resize-none"
-                      placeholder="Расскажите о вашем проекте"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-black text-white py-4 text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-300 font-bold"
-                  >
-                    Отправить заявку
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
+      {/* Keyboard hint on first slide */}
+      {current === 0 && (
+        <div
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 text-xs uppercase tracking-widest pointer-events-none whitespace-nowrap"
+          style={{ fontFamily: "'Space Mono', monospace", color: isRedBg ? "rgba(255,255,255,0.4)" : "#b5b5b5" }}
+        >
+          ← → или пробел для навигации
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 px-4 md:px-8 bg-black text-white border-t border-neutral-800">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="font-bold tracking-tighter" style={{ fontFamily: "'Space Mono', monospace" }}>GRIDFORM</p>
-          <p className="text-neutral-500 text-sm">© 2024 Все права защищены</p>
-          <p className="text-neutral-500 text-sm uppercase tracking-widest">Дизайн-студия · Москва</p>
-        </div>
-      </footer>
-    </main>
+      )}
+    </div>
   );
 }
