@@ -1,6 +1,61 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 
+function PrintView() {
+  return (
+    <div className="hidden print:block">
+      {slides.map((slide) => {
+        const isRedBg = slide.accent === "red" && (slide.type === "cover" || slide.type === "final");
+        const bgColor = isRedBg ? "#dc2626" : "#fff";
+        const fgColor = isRedBg ? "#fff" : "#000";
+        const borderColor = isRedBg ? "rgba(255,255,255,0.3)" : "#000";
+
+        return (
+          <div
+            key={slide.id}
+            className="print-slide"
+            style={{ background: bgColor, color: fgColor, fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            {/* Top bar */}
+            <div
+              className="flex justify-between items-center px-12 py-4 flex-shrink-0"
+              style={{ borderBottom: `1px solid ${borderColor}` }}
+            >
+              <p
+                className="text-xs uppercase tracking-widest font-bold"
+                style={{ fontFamily: "'Space Mono', monospace", color: isRedBg ? "rgba(255,255,255,0.8)" : "#dc2626" }}
+              >
+                {slide.tag}
+              </p>
+              <p
+                className="text-xs uppercase tracking-widest"
+                style={{ fontFamily: "'Space Mono', monospace", color: isRedBg ? "rgba(255,255,255,0.5)" : "#737373" }}
+              >
+                {String(slide.id).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+              </p>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 px-12 py-8 overflow-hidden flex flex-col">
+              {slide.type !== "cover" && slide.type !== "final" && (
+                <h2
+                  className="font-bold tracking-tighter leading-none mb-8 flex-shrink-0"
+                  style={{ fontFamily: "'Space Mono', monospace", fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
+                >
+                  {slide.title}
+                </h2>
+              )}
+              <div className="flex-1">
+                <SlideContent slide={slide} />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const slides = [
   {
     id: 1,
@@ -401,7 +456,7 @@ export default function Index() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col transition-colors duration-500"
+      className="fixed inset-0 flex flex-col transition-colors duration-500 print:hidden"
       style={{ background: bgColor, color: fgColor }}
     >
       {/* Top bar */}
@@ -466,8 +521,17 @@ export default function Index() {
           ))}
         </div>
 
-        {/* Arrows */}
-        <div className="flex gap-2">
+        {/* Arrows + PDF */}
+        <div className="flex gap-2 no-print">
+          <button
+            onClick={() => window.print()}
+            className="h-10 px-3 flex items-center gap-2 border transition-all duration-200 text-xs uppercase tracking-widest"
+            style={{ borderColor: fgColor, color: fgColor }}
+            title="Скачать PDF"
+          >
+            <Icon name="Download" size={14} />
+            <span className="hidden md:inline">PDF</span>
+          </button>
           <button
             onClick={prev}
             disabled={current === 0}
@@ -493,12 +557,15 @@ export default function Index() {
       {/* Keyboard hint on first slide */}
       {current === 0 && (
         <div
-          className="absolute bottom-20 left-1/2 -translate-x-1/2 text-xs uppercase tracking-widest pointer-events-none whitespace-nowrap"
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 text-xs uppercase tracking-widest pointer-events-none whitespace-nowrap no-print"
           style={{ fontFamily: "'Space Mono', monospace", color: isRedBg ? "rgba(255,255,255,0.4)" : "#b5b5b5" }}
         >
           ← → или пробел для навигации
         </div>
       )}
+
+      {/* Print: all slides */}
+      <PrintView />
     </div>
   );
 }
